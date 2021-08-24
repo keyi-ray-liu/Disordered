@@ -5,6 +5,7 @@ from functools import reduce
 import copy
 from scipy import linalg
 from scipy.linalg import eigh
+import matplotlib.pyplot as plt
 
 
 # The preliminary TN simulation program I have for the small scale 2D system we have. 
@@ -13,7 +14,8 @@ from scipy.linalg import eigh
 
 # intialize the parameters for the simulation
 def initParameters():
-    L, N, tun, cou, a, b = np.loadtxt('inp')
+    L, N, batch, lo, hi = np.loadtxt('inp')
+    tun, cou, a, b, readdisorder, seed = np.loadtxt('disorder')
     para = {
     'L' : int(L),
     'N' : int(N),
@@ -21,6 +23,7 @@ def initParameters():
     'int_ee': 1,
     'int_ne': -1,
     'z': 1,
+    'readdisorder': int(readdisorder),
     'zeta':0.5,
     'ex': 0.2,
     'tun': int(tun),
@@ -28,8 +31,11 @@ def initParameters():
     'a': a,
     'b': b,
     # if-include-nuc-self-int switch, 1 means include
-    'batch': 200,
-    'selfnuc':0}
+    'batch': int(batch),
+    'selfnuc':0,
+    'seed': int(seed),
+    'Nth eig': [int(lo), int(hi)]}
+    print('Simulation parameters: {}'.format(para))
     return para
 
 
@@ -43,9 +49,17 @@ def generateState(L, N):
     return [ [0]  + state for state in generateState(L - 1, N)] + [ [ 1] + state for state in generateState(L - 1, N -1)]
 
 def generateDisorder(para):
-    L, N, a, b = para['L'], para['N'], para['a'], para['b']
+    L, a, b, batch, readdisorder = para['L'],  para['a'], para['b'], para['batch'], para['readdisorder']
+    seed = para['seed']
 
-    return a * np.random.uniform(-1, 1, L) + b * np.random.uniform(-1, 1, L)
+    #print(seed)
+    if readdisorder:
+        disorder = np.loadtxt('disorder')
+        return disorder
+    else:
+        rng = np.random.default_rng(seed=seed)
+
+        return a * rng.uniform(-1, 1, (batch, L)), b * rng.uniform(-1, 1, (batch, L))
 
 def init(para):
     L = para['L']
@@ -61,7 +75,7 @@ def initdict(S):
 
 def hamiltonian(s, dis, para):
     L, t, int_ee, int_ne, z, zeta, ex, selfnuc = para['L'],  para['t'], para['int_ee'],para['int_ne'], para['z'], para['zeta'], para['ex'],  para['selfnuc']
-    tun, cou, a, b = para['tun'], para['cou'], para['a'], para['b']
+    tun, cou= para['tun'], para['cou']
     allnewstates = [[], []]
     allee, allne = 0, 0
 
@@ -76,7 +90,8 @@ def hamiltonian(s, dis, para):
             snew[loc], snew[ loc +1] = snew[ loc + 1], snew[loc]
             res.append(snew)
             if tun:
-                factor = np.exp( dis[loc] + dis[loc + 1] )
+                factor = np.exp( sqrt( (dis[0][loc] + dis[0][loc + 1] + 1) ** 2 + (dis[1][loc] + dis[1][loc + 1]) ** 2) - 1)
+                #print(factor)
                 ts.append( -t * factor)
             else:
                 ts.append(- t)
@@ -88,13 +103,17 @@ def hamiltonian(s, dis, para):
     def ee(loc):  
         res = 0
         for site in range(L):
-            r = abs(site - loc)
-            if cou:
-                r += sum(dis[min(loc, site): max(loc, site) + 1])
-            # check exchange condition
-            factor = [ 1 - ex if np.rint(r) == 1 else 1][0]
-            # remove self-interaction
-            if site != loc :
+            # no self-interaction
+            if site != loc:
+
+                r = abs(site - loc)
+                factor = [ 1 - ex if np.rint(r) == 1 else 1][0]
+
+                if cou:
+                    r = sqrt( ( r + dis[0][loc] + dis[0][site]) ** 2 + (dis[1][loc] + dis[1][site] ) ** 2)
+                # check exchange condition
+                
+                
                 res +=  int_ee * z * factor / ( r + zeta ) * s[loc] * s[site]
         return res
 
@@ -106,7 +125,7 @@ def hamiltonian(s, dis, para):
             r = abs(site - loc)
 
             if cou:
-                r += sum(dis[min(loc, site): max(loc, site) + 1])
+                r = sqrt( ( r + dis[0][loc] + dis[0][site]) ** 2 + (dis[1][loc] + dis[1][site] ) ** 2)
 
             res +=  int_ne * z / ( r + zeta ) * s[site]
         return res if selfnuc else res - int_ne * z / zeta * s[loc]
@@ -147,8 +166,21 @@ def setMatrix(S, N, dis, sdict, para):
         for j, newstate  in enumerate(newstates[1]):
             M[i][sdict[str(newstate)]] = newstates[0][j]
     return M
-def solve(M):
-    return eigh(M, subset_by_index=[0, 5])
+    
+def solve(M, para):
+    ranges = para['Nth eig']
+    return eigh(M, subset_by_index=ranges)
+
+def plotprob(eigv, para):
+    L = para['L']
+    N = len(eigv[0])
+    
+    for eig in range(N):
+        plt.subplot(N, 1, eig + 1)
+        plt.plot(list(range(L)), eigv[:,eig])
+    
+    plt.show()
+
 
 def calIPR(eigv):
     return np.sum(eigv**4, axis=0)
@@ -161,23 +193,31 @@ if __name__ == '__main__':
 
     # Here we try using a randomly generated set of occupation configuration
     S = init(para)
+
     # generate dictionary for book keeping
     sdict = initdict(S)
+    disx, disy = generateDisorder(para) 
 
     for step in range(batch):
         # generate disorder
-        dis = generateDisorder(para)
-        print('Disorder: {}'.format(dis))
+        
+        print('\n \n \n case: {}'.format(step))
+
+        dis = [disx[step], disy[step]]
+        print('x Disorder: {}\n y Disorder: {}'.format(dis[0], dis[1]))
         # total number of states
         N = len(S)
 
         M = setMatrix(S, N, dis, sdict, para)
-        #print(M)
-        energy, eigv = solve(M)
 
+        #print(M)
+        energy, eigv = solve(M, para)
+
+        plotprob(eigv, para)
+        print('Eigenvectors (by column): \n {}'.format(eigv))
         ipr = calIPR(eigv)
-        print('energy is {}'.format(energy))
-        print('inverse participation ratio: {}'.format(ipr))
+        print('Energy is {}'.format(energy))
+        print('Inverse participation ratio: {}'.format(ipr))
         #calEnergy(S, A, para)
         #S = initSpin(rdim, cdim)
         #print(hamiltonian(S, rdim, cdim, t, int_ee, int_ne, Z, zeta, ex))
