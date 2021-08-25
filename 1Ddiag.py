@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # intialize the parameters for the simulation
 def initParameters():
     L, N, batch, lo, hi = np.loadtxt('inp')
-    tun, cou, a, b, readdisorder, seed, decay = np.loadtxt('disorder')
+    tun, cou, a, b, readdisorder, seed, decay = np.loadtxt('para_dis')
     t, int_ee, int_ne, z, zeta, ex, selfnuc = np.loadtxt('hamiltonian')
     para = {
     'L' : int(L),
@@ -56,8 +56,8 @@ def generateDisorder(para):
 
     #print(seed)
     if readdisorder:
-        disorder = np.loadtxt('disorder')
-        return disorder
+        disx, disy = np.loadtxt('val_dis')
+        return disx, disy
     else:
         rng = np.random.default_rng(seed=seed)
 
