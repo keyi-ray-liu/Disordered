@@ -87,7 +87,7 @@ def hamiltonian(s, dis, para):
         res = []
         
         #hop right
-        if not loc == L - 1:
+        if loc < L - 1 and s[loc] != s[loc + 1]:
             snew = copy.copy(s) 
             snew[loc], snew[ loc +1] = snew[ loc + 1], snew[loc]
             res.append(snew)
