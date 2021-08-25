@@ -15,25 +15,27 @@ import matplotlib.pyplot as plt
 # intialize the parameters for the simulation
 def initParameters():
     L, N, batch, lo, hi = np.loadtxt('inp')
-    tun, cou, a, b, readdisorder, seed = np.loadtxt('disorder')
+    tun, cou, a, b, readdisorder, seed, decay = np.loadtxt('disorder')
+    t, int_ee, int_ne, z, zeta, ex, selfnuc = np.loadtxt('hamiltonian')
     para = {
     'L' : int(L),
     'N' : int(N),
-    't': 1.0,
-    'int_ee': 1,
-    'int_ne': -1,
-    'z': 1,
-    'readdisorder': int(readdisorder),
-    'zeta':0.5,
-    'ex': 0.2,
+    't': t,
+    'int_ee': int_ee,
+    'int_ne': int_ne,
+    'z': z,
+    'zeta':zeta,
+    'ex': ex,
+    # if-include-nuc-self-int switch, 1 means include
+    'selfnuc': int(selfnuc),
     'tun': int(tun),
     'cou': int(cou),
     'a': a,
     'b': b,
-    # if-include-nuc-self-int switch, 1 means include
-    'batch': int(batch),
-    'selfnuc':0,
+    'readdisorder': int(readdisorder),
     'seed': int(seed),
+    'decay': decay,
+    'batch': int(batch),
     'Nth eig': [int(lo), int(hi)]}
     print('Simulation parameters: {}'.format(para))
     return para
@@ -75,7 +77,7 @@ def initdict(S):
 
 def hamiltonian(s, dis, para):
     L, t, int_ee, int_ne, z, zeta, ex, selfnuc = para['L'],  para['t'], para['int_ee'],para['int_ne'], para['z'], para['zeta'], para['ex'],  para['selfnuc']
-    tun, cou= para['tun'], para['cou']
+    tun, cou, decay = para['tun'], para['cou'], para['decay']
     allnewstates = [[], []]
     allee, allne = 0, 0
 
@@ -90,7 +92,10 @@ def hamiltonian(s, dis, para):
             snew[loc], snew[ loc +1] = snew[ loc + 1], snew[loc]
             res.append(snew)
             if tun:
-                factor = np.exp( sqrt( (dis[0][loc] + dis[0][loc + 1] + 1) ** 2 + (dis[1][loc] + dis[1][loc + 1]) ** 2) - 1)
+                dx = dis[0][loc] + dis[0][loc + 1] + 1
+                dy = dis[1][loc] + dis[1][loc + 1] 
+                dr = sqrt(dx ** 2 + dy ** 2)
+                factor = np.exp( - ( dr - 1) /decay )
                 #print(factor)
                 ts.append( -t * factor)
             else:
@@ -172,12 +177,14 @@ def solve(M, para):
     return eigh(M, subset_by_index=ranges)
 
 def plotprob(eigv, para):
-    L = para['L']
+
     N = len(eigv[0])
     
     for eig in range(N):
+        if eig == 1:
+            plt.title('Wavefunction Plot')
         plt.subplot(N, 1, eig + 1)
-        plt.plot(list(range(L)), eigv[:,eig])
+        plt.plot(list(range(len(eigv))), eigv[:,eig] )
     
     plt.show()
 
@@ -213,8 +220,8 @@ if __name__ == '__main__':
         #print(M)
         energy, eigv = solve(M, para)
 
-        plotprob(eigv, para)
-        print('Eigenvectors (by column): \n {}'.format(eigv))
+        #plotprob(eigv, para)
+        #print('Eigenvectors (by column): \n {}'.format(eigv))
         ipr = calIPR(eigv)
         print('Energy is {}'.format(energy))
         print('Inverse participation ratio: {}'.format(ipr))
