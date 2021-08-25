@@ -195,6 +195,7 @@ def calIPR(eigv):
 if __name__ == '__main__':
     para = initParameters()
     batch = para['batch']
+    readdisorder = para['readdisorder']
     # Start the iterative Monte Carlo updates
     energy = []
 
@@ -204,6 +205,10 @@ if __name__ == '__main__':
     # generate dictionary for book keeping
     sdict = initdict(S)
     disx, disy = generateDisorder(para) 
+
+    if readdisorder:
+        batch = 1
+        disx, disy = [disx], [disy]
 
     for step in range(batch):
         # generate disorder
