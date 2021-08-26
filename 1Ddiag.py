@@ -92,8 +92,8 @@ def hamiltonian(s, dis, para):
             snew[loc], snew[ loc +1] = snew[ loc + 1], snew[loc]
             res.append(snew)
             if tun:
-                dx = dis[0][loc] + dis[0][loc + 1] + 1
-                dy = dis[1][loc] + dis[1][loc + 1] 
+                dx = - dis[0][loc]  + dis[0][loc + 1] + 1
+                dy = - dis[1][loc] + dis[1][loc + 1] 
                 dr = sqrt(dx ** 2 + dy ** 2)
                 factor = np.exp( - ( dr - 1) /decay )
                 #print(factor)
@@ -111,15 +111,15 @@ def hamiltonian(s, dis, para):
             # no self-interaction
             if site != loc:
 
-                r = abs(site - loc)
-                factor = [ 1 - ex if np.rint(r) == 1 else 1][0]
+                r = site - loc
+                factor = [ 1 - ex if np.rint(abs(r)) == 1 else 1][0]
 
                 if cou:
-                    r = sqrt( ( r + dis[0][loc] + dis[0][site]) ** 2 + (dis[1][loc] + dis[1][site] ) ** 2)
+                    r = sqrt( ( - dis[0][loc] + r + dis[0][site]) ** 2 + ( - dis[1][loc] + dis[1][site] ) ** 2)
                 # check exchange condition
                 
                 
-                res +=  int_ee * z * factor / ( r + zeta ) * s[loc] * s[site]
+                res +=  int_ee * z * factor / ( abs(r) + zeta ) * s[loc] * s[site]
         return res
 
 
@@ -127,12 +127,12 @@ def hamiltonian(s, dis, para):
         res = 0
         # sum the contribution from all sites
         for site in range(L):
-            r = abs(site - loc)
+            r = site - loc
 
             if cou:
-                r = sqrt( ( r + dis[0][loc] + dis[0][site]) ** 2 + (dis[1][loc] + dis[1][site] ) ** 2)
+                r = sqrt( ( - dis[0][loc] + r + dis[0][site]) ** 2 + ( - dis[1][loc] + dis[1][site] ) ** 2)
 
-            res +=  int_ne * z / ( r + zeta ) * s[site]
+            res +=  int_ne * z / ( abs(r) + zeta ) * s[site]
         return res if selfnuc else res - int_ne * z / zeta * s[loc]
 
     for loc in range(L):
@@ -159,9 +159,6 @@ def hamiltonian(s, dis, para):
 
     return allnewstates
 
-# B is the altered state
-def innerProduct(A, B):
-    return sum([B[0][i] if np.array_equal(A, s) else 0 for i, s in enumerate(B[1]) ])
 
 
 def setMatrix(S, N, dis, sdict, para):
