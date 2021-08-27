@@ -189,6 +189,13 @@ def plotprob(eigv, para):
 def calIPR(eigv):
     return np.sum(eigv**4, axis=0)
 
+def saveresults(energy, ipr, disx, disy):
+    strs = ['energy', 'ipr', 'disx', 'disy']
+    data = [energy, ipr, disx, disy]
+    
+    for i in range(len(strs)):
+        np.savetxt(strs[i], data[i], fmt='%.8f')
+
 if __name__ == '__main__':
     para = initParameters()
     batch = para['batch']
@@ -203,16 +210,19 @@ if __name__ == '__main__':
     sdict = initdict(S)
     disx, disy = generateDisorder(para) 
 
-    if readdisorder:
+    if readdisorder :
         batch = 1
         disx, disy = [disx], [disy]
 
-    for step in range(batch):
+    energies = []
+    iprs = []
+
+    for case in range(batch):
         # generate disorder
         
-        print('\n \n \n case: {}'.format(step))
+        print('\n \n \n case: {}'.format(case))
 
-        dis = [disx[step], disy[step]]
+        dis = [disx[case], disy[case]]
         print('x Disorder: {}\n y Disorder: {}'.format(dis[0], dis[1]))
         # total number of states
         N = len(S)
@@ -225,8 +235,13 @@ if __name__ == '__main__':
         #plotprob(eigv, para)
         #print('Eigenvectors (by column): \n {}'.format(eigv))
         ipr = calIPR(eigv)
+
+        energies.append(energy)
+        iprs.append(ipr)
         print('Energy is {}'.format(energy))
         print('Inverse participation ratio: {}'.format(ipr))
+
+    saveresults(energies, iprs, disx, disy)
         #calEnergy(S, A, para)
         #S = initSpin(rdim, cdim)
         #print(hamiltonian(S, rdim, cdim, t, int_ee, int_ne, Z, zeta, ex))
