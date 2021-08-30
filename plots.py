@@ -10,8 +10,8 @@ def allplot():
     iprs = []
     for x in range(1, maxx):
         for y in range(1, maxy):
-            cdir = os.getcwd() + '/1tun1cou{}x{}y*/ipr'.format(str(x*0.01)[1:], str(y*0.01)[1:]) 
-            f = glob.glob(cdir)
+            cdir = os.getcwd() + '/1tun1cou.{}x.{}y*/ipr'.format(str(x).zfill(2), str(y).zfill(2)) 
+            f = glob.glob(cdir)[0]
             iprs.append(np.average(np.loadtxt(f), axis=0)[0])
     X, Y = np.meshgrid(list(range(1, maxx)), list(range(1, maxy)))[::-1]
 
