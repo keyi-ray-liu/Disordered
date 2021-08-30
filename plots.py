@@ -17,7 +17,7 @@ def allplot():
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     surf = ax.plot_surface(X, Y, iprs, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-    
+    plt.show()
 
 if __name__ == '__main__':
     allplot()
