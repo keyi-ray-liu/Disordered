@@ -72,6 +72,8 @@ def plotdisorder(para):
         disy = disy.flatten()
 
         ax.scatter(x, y)
+        ax.set_xlim(-1, L)
+        ax.set_ylim(-maxy, maxy)
         fig.canvas.draw_idle()
         
     txtx.on_submit(submit)
