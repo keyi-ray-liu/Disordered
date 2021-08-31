@@ -71,8 +71,8 @@ def plotdisorder(para):
 
         plt.scatter(x, y)
         
-    txtx.on_changed(submit)
-    txty.on_changed(submit)
+    txtx.on_submit(submit)
+    txty.on_submit(submit)
 
     plt.show()
 
