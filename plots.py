@@ -4,11 +4,13 @@ from matplotlib import cm
 import glob
 import os
 import sys
+from matplotlib.widgets import TextBox
 
 
 def loadpara():
-    maxx, maxy, numeig , eig = np.loadtxt('paras', dtype=int)
+    maxx, maxy, L, numeig , eig = np.loadtxt('paras', dtype=int)
     para = {
+        'L': L,
         'maxx': maxx,
         'maxy': maxy,
         'numeig': numeig,
@@ -45,8 +47,39 @@ def allplot(para):
     
     plt.show()
 
+def plotdisorder(para):
+    maxx, maxy, L = para['maxx'], para['maxy'], para['L']
+    axes = [plt.axes([0.25, 0.2 ,0.3, 0.09]), plt.axes([0.25, 0.3 ,0.3, 0.09])]
+
+    txtx = TextBox(axes[0], 'Max x disorder (from 0.01 to {})'.format(0.01*maxx), initial=1)
+    txty = TextBox(axes[1], 'Max y disorder (from 0.01 to {})'.format(0.01*maxy), initial=1)
+
+    def submit(val):
+        x = int ( float(txtx.text) * 100) 
+        y = int ( float( txty.text) * 100)
+
+        xdir = os.getcwd() + '/1tun1cou.{}x.{}y*/disx'.format(str(x).zfill(2), str(y).zfill(2)) 
+        ydir = os.getcwd() + '/1tun1cou.{}x.{}y*/disy'.format(str(x).zfill(2), str(y).zfill(2)) 
+        xf = glob.glob(xdir)[0]
+        yf = glob.glob(ydir)[0]
+
+        disx = np.loadtxt(xf)
+        disy = np.loadtxt(yf)
+
+        disx = [dis + list(range(L)) for dis in disx].flatten()
+        disy = disy.flatten()
+
+        plt.scatter(x, y)
+        
+    txtx.on_changed(submit)
+    txty.on_changed(submit)
+
+    plt.show()
+
 if __name__ == '__main__':
     para = loadpara()
+
+    plotdisorder(para)
 
     if os.path.exists('allipr{}'.format(para['whichEig'])):
         print('plotting {}th eigenstate'.format(para['whichEig']))
