@@ -23,11 +23,19 @@ def allplot(eig):
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     surf = ax.plot_surface(X, Y, iprs, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+
+    ax.set_title('Plotting IPR vs. maximum x and y disorder')
+    ax.set_xlabel('Maximum x disorder')
+    ax.set_ylabel('Maximum y disorder')
+    ax.set_zlabel('IPR')
+    
+    
     plt.show()
 
 if __name__ == '__main__':
     eig = int(sys.argv[1])
     if os.path.exists('allipr{}'.format(eig)):
+        print('plotting {]th eigenvalue')
         allplot(eig)
     else:
         processipr()
