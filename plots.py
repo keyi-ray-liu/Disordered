@@ -28,7 +28,7 @@ def allplot(eig):
     ax.set_xlabel('Maximum x disorder')
     ax.set_ylabel('Maximum y disorder')
     ax.set_zlabel('IPR')
-    
+
     
     plt.show()
 
@@ -38,5 +38,6 @@ if __name__ == '__main__':
         print('plotting {]th eigenvalue')
         allplot(eig)
     else:
+        print('processing data')
         processipr()
 
