@@ -51,8 +51,10 @@ def plotdisorder(para):
     maxx, maxy, L = para['maxx'], para['maxy'], para['L']
     axes = [plt.axes([0.25, 0.2 ,0.3, 0.09]), plt.axes([0.25, 0.3 ,0.3, 0.09])]
 
-    txtx = TextBox(axes[0], 'Max x disorder (from 0.01 to {})'.format(0.01*maxx), initial=1)
-    txty = TextBox(axes[1], 'Max y disorder (from 0.01 to {})'.format(0.01*maxy), initial=1)
+    txtx = TextBox(axes[0], 'Max x disorder (from 0.01 to {})'.format(0.01*maxx), initial=0.01)
+    txty = TextBox(axes[1], 'Max y disorder (from 0.01 to {})'.format(0.01*maxy), initial=0.01)
+
+    fig, ax = plt.subplots()
 
     def submit(val):
         x = int ( float(txtx.text) * 100) 
@@ -69,7 +71,8 @@ def plotdisorder(para):
         disx = np.array([dis + list(range(L)) for dis in disx]).flatten()
         disy = disy.flatten()
 
-        plt.scatter(x, y)
+        ax.scatter(x, y)
+        fig.canvas.draw_idle()
         
     txtx.on_submit(submit)
     txty.on_submit(submit)
