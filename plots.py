@@ -33,23 +33,35 @@ def processipr(para):
 def allplot(para):
     maxx, maxy, eig = para['maxx'], para['maxy'], para['whichEig']
 
-    iprs = np.loadtxt('allipr{}'.format(eig))
+    
     X, Y = np.meshgrid(list(range(1, maxx + 1)), list(range(1, maxy + 1)))[::-1]
 
+    axes = plt.axes([0.5, 0.3, 0.3, 0.1])
+    txteig = TextBox(axes, 'Enter eigenstate')
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(X, Y, iprs, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
-    ax.set_title('Plotting IPR vs. maximum x and y disorder, eigenstate {}'.format(eig))
-    ax.set_xlabel('Maximum x disorder')
-    ax.set_ylabel('Maximum y disorder')
-    ax.set_zlabel('IPR')
+    def update(val):
+        ax.clear()
+        eig = int(txteig.text)
+        iprs = np.loadtxt('allipr{}'.format(eig))
+        
+        
+        ax.plot_surface(X, Y, iprs, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
+        ax.set_title('Plotting IPR vs. maximum x and y disorder, eigenstate {}'.format(eig))
+        ax.set_xlabel('Maximum x disorder')
+        ax.set_ylabel('Maximum y disorder')
+        ax.set_zlabel('IPR')
+
+        fig.canvas.draw_idle()
+
+    txteig.on_submit(update)
     
     plt.show()
 
 def plotdisorder(para):
     maxx, maxy, L = para['maxx'], para['maxy'], para['L']
-    axes = [plt.axes([0.25, 0.2 ,0.3, 0.09]), plt.axes([0.25, 0.3 ,0.3, 0.09])]
+    axes = [plt.axes([0.5, 0.2 ,0.3, 0.09]), plt.axes([0.5, 0.3 ,0.3, 0.09])]
 
     txtx = TextBox(axes[0], 'Max x disorder (from 0.01 to {})'.format(0.01*maxx), initial=0.01)
     txty = TextBox(axes[1], 'Max y disorder (from 0.01 to {})'.format(0.01*maxy), initial=0.01)
@@ -57,6 +69,7 @@ def plotdisorder(para):
     fig, ax = plt.subplots()
 
     def submit(val):
+        ax.clear()
         x = int ( float(txtx.text) * 100) 
         y = int ( float( txty.text) * 100)
 
@@ -70,10 +83,11 @@ def plotdisorder(para):
 
         disx = np.array([dis + list(range(L)) for dis in disx]).flatten()
         disy = disy.flatten()
+        
+        ax.scatter(disx, disy, s=0.2)
+        ax.set_xlim( 0 - maxx/100 , L + maxy/100)
+        ax.set_ylim(-maxy/100, maxy/100)
 
-        ax.scatter(x, y)
-        ax.set_xlim(-1, L)
-        ax.set_ylim(-maxy, maxy)
         fig.canvas.draw_idle()
         
     txtx.on_submit(submit)
