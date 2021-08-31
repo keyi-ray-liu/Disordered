@@ -49,7 +49,7 @@ if __name__ == '__main__':
     para = loadpara()
 
     if os.path.exists('allipr{}'.format(para['whichEig'])):
-        print('plotting {]th eigenstate'.format(para['whichEig']))
+        print('plotting {}th eigenstate'.format(para['whichEig']))
         allplot(para)
     else:
         print('processing data')
