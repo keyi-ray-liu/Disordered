@@ -66,7 +66,7 @@ def plotdisorder(para):
         disx = np.loadtxt(xf)
         disy = np.loadtxt(yf)
 
-        disx = [dis + list(range(L)) for dis in disx].flatten()
+        disx = np.array([dis + list(range(L)) for dis in disx]).flatten()
         disy = disy.flatten()
 
         plt.scatter(x, y)
