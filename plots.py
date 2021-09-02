@@ -29,9 +29,9 @@ def processipr(para):
     for i in range(numeig):
         iprs = np.zeros((maxx, maxy))
         for x in range( maxx):
-            ix = (x + 1) * step * 10 ** factor
+            ix = int ( (x + 1) * step * 10 ** factor )
             for y in range(maxy):
-                iy = (y + 1) * step * 10 ** factor
+                iy = int ( (y + 1) * step * 10 ** factor )
                 cdir = os.getcwd() + '/1tun1cou.{}x.{}y*/ipr'.format(str(ix).zfill(factor), str(iy).zfill(factor)) 
                 f = glob.glob(cdir)[0]
                 iprs[x][y] = np.average(np.loadtxt(f), axis=0)[i]
@@ -39,7 +39,8 @@ def processipr(para):
 
 def allplot(para):
     maxx, maxy, eig = para['maxx'], para['maxy'], para['whichEig']
-
+    step = para['step']
+    distype = para['distype']
     
     X, Y = np.meshgrid(list(range(1, maxx + 1)), list(range(1, maxy + 1)))[::-1]
 
@@ -55,7 +56,7 @@ def allplot(para):
         
         ax.plot_surface(X, Y, iprs, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
-        ax.set_title('Plotting IPR vs. maximum x and y disorder, eigenstate {}'.format(eig))
+        ax.set_title('Plotting IPR vs. maximum x and y disorder, eigenstate {}, step {}, {}'.format(eig, step, distype ))
         ax.set_xlabel('Maximum x disorder')
         ax.set_ylabel('Maximum y disorder')
         ax.set_zlabel('IPR')
@@ -82,8 +83,8 @@ def plotdisorder(para):
 
     def submit(val):
         ax.clear()
-        x = int ( float(txtx.text) * step * 10 ** factor) 
-        y = int ( float(txty.text) * step * 10 ** factor)
+        x = int ( int(txtx.text) * step * 10 ** factor) 
+        y = int ( int(txty.text) * step * 10 ** factor)
 
         xdir = os.getcwd() + '/1tun1cou.{}x.{}y*/disx'.format(str(x).zfill(factor), str(y).zfill(factor)) 
         ydir = os.getcwd() + '/1tun1cou.{}x.{}y*/disy'.format(str(x).zfill(factor), str(y).zfill(factor)) 
@@ -99,7 +100,7 @@ def plotdisorder(para):
         ax.scatter(disx, disy, s=0.2)
         ax.set_xlim( 0 - maxx * step , L - 1 + maxy * step)
         ax.set_ylim(-maxy * step, maxy * step)
-        ax.set_title('Visualization of Disorder, {}, max a: {}, max b: {}'.format(distype, maxx * step, maxy * step))
+        ax.set_title('Visualization of Disorder, {}, max a: {}, max b: {}'.format(distype, int(txtx.text) * step, int(txty.text) * step))
 
         fig.canvas.draw_idle()
         
