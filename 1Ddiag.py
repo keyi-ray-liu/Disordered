@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # intialize the parameters for the simulation
 def initParameters():
     L, N, batch, lo, hi = np.loadtxt('inp')
-    tun, cou, a, b, readdisorder, seed, decay = np.loadtxt('para_dis')
+    tun, cou, a, b,  readdisorder, seed, decay, distype = np.loadtxt('para_dis')
     t, int_ee, int_ne, z, zeta, ex, selfnuc = np.loadtxt('hamiltonian')
     para = {
     'L' : int(L),
@@ -32,11 +32,13 @@ def initParameters():
     'cou': int(cou),
     'a': a,
     'b': b,
+    'seed': seed,
     'readdisorder': int(readdisorder),
-    'seed': int(seed),
     'decay': decay,
     'batch': int(batch),
+    'distype': distype,
     'Nth eig': [int(lo), int(hi)]}
+    
     print('Simulation parameters: {}'.format(para))
     return para
 
@@ -51,17 +53,24 @@ def generateState(L, N):
     return [ [0]  + state for state in generateState(L - 1, N)] + [ [ 1] + state for state in generateState(L - 1, N -1)]
 
 def generateDisorder(para):
-    L, a, b, batch, readdisorder = para['L'],  para['a'], para['b'], para['batch'], para['readdisorder']
-    seed = para['seed']
+    L, batch, readdisorder, distype, seed , a, b = para['L'],   para['batch'], para['readdisorder'], para['distype'], para['seed'], para['a'], para['b']
 
-    #print(seed)
     if readdisorder:
         disx, disy = np.loadtxt('val_dis')
         return disx, disy
+
     else:
         rng = np.random.default_rng(seed=seed)
 
-        return a * rng.uniform(-1, 1, (batch, L)), b * rng.uniform(-1, 1, (batch, L))
+        if distype == 'uniform':
+
+            return a * rng.uniform(-1, 1, (batch, L)), b * rng.uniform(-1, 1, (batch, L))
+
+        elif distype =='gaussian':
+
+            return rng.normal(0, a, (batch, L)), rng.normal(0, b, (batch, L))
+
+
 
 def init(para):
     L = para['L']
