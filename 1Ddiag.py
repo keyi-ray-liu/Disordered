@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # intialize the parameters for the simulation
 def initParameters():
     L, N, batch, lo, hi = np.loadtxt('inp')
-    tun, cou, a, b,  readdisorder, seed, decay, distype = np.loadtxt('para_dis')
+    tun, cou, a, b,  readdisorder, seed, decay, distype = np.loadtxt('para_dis', usecols=range(7)), np.genfromtxt('para_dis', usecols=(7))
     t, int_ee, int_ne, z, zeta, ex, selfnuc = np.loadtxt('hamiltonian')
     para = {
     'L' : int(L),
