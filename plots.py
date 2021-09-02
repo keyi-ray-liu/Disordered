@@ -5,16 +5,18 @@ import glob
 import os
 import sys
 from matplotlib.widgets import TextBox
+from math import ceil
 
 
 def loadpara():
-    maxx, maxy, L, numeig , eig = np.loadtxt('paras', dtype=int)
+    maxx, maxy, L, numeig , eig, step = np.loadtxt('paras')
     para = {
-        'L': L,
-        'maxx': maxx,
-        'maxy': maxy,
-        'numeig': numeig,
-        'whichEig': eig,
+        'L': int(L),
+        'maxx': int(maxx),
+        'maxy': int(maxy),
+        'numeig': int(numeig),
+        'whichEig': int(eig),
+        'step':step
     }
     return para
 
@@ -61,20 +63,24 @@ def allplot(para):
 
 def plotdisorder(para):
     maxx, maxy, L = para['maxx'], para['maxy'], para['L']
+    step = para['step']
+
+    factor = ceil(np.log10(1/step))
+    
     axes = [plt.axes([0.5, 0.2 ,0.3, 0.09]), plt.axes([0.5, 0.3 ,0.3, 0.09])]
 
-    txtx = TextBox(axes[0], 'Max x disorder (from 0.01 to {})'.format(0.01*maxx), initial=0.01)
-    txty = TextBox(axes[1], 'Max y disorder (from 0.01 to {})'.format(0.01*maxy), initial=0.01)
+    txtx = TextBox(axes[0], 'Max x disorder step (from {} to {}), with step length {}:'.format(1, maxx, step), initial=0.01)
+    txty = TextBox(axes[1], 'Max y disorder step (from {} to {}), with step length {}:'.format(1, maxy, step), initial=0.01)
 
     fig, ax = plt.subplots()
 
     def submit(val):
         ax.clear()
-        x = int ( float(txtx.text) * 100) 
-        y = int ( float( txty.text) * 100)
+        x = int ( float(txtx.text) * 10 ** factor) 
+        y = int ( float(txty.text) * 10 ** factor)
 
-        xdir = os.getcwd() + '/1tun1cou.{}x.{}y*/disx'.format(str(x).zfill(2), str(y).zfill(2)) 
-        ydir = os.getcwd() + '/1tun1cou.{}x.{}y*/disy'.format(str(x).zfill(2), str(y).zfill(2)) 
+        xdir = os.getcwd() + '/1tun1cou.{}x.{}y*/disx'.format(str(x).zfill(factor), str(y).zfill(factor)) 
+        ydir = os.getcwd() + '/1tun1cou.{}x.{}y*/disy'.format(str(x).zfill(factor), str(y).zfill(factor)) 
         xf = glob.glob(xdir)[0]
         yf = glob.glob(ydir)[0]
 
