@@ -37,7 +37,7 @@ def processipr(para):
                 iprs[x][y] = np.average(np.loadtxt(f), axis=0)[i]
         np.savetxt('allipr{}'.format(i), iprs)
 
-def allplot(para):
+def iprplot(para):
     maxx, maxy, eig = para['maxx'], para['maxy'], para['whichEig']
     step = para['step']
     distype = para['distype']
@@ -94,10 +94,18 @@ def plotdisorder(para):
         disx = np.loadtxt(xf)
         disy = np.loadtxt(yf)
 
-        disx = np.array([dis + list(range(L)) for dis in disx]).flatten()
-        disy = disy.flatten()
+        num = len(disx)
+        #define color steps
+        cstep = 1/num
+
+        for i in range(num):
+            # varying colors for each case
+            color = (0.1, 0.1, cstep * i)
+            eachdisx = disx[i] + list(range(L))
+            eachdisy = disy[i]
         
-        ax.scatter(disx, disy, s=0.2)
+            ax.scatter(eachdisx, eachdisy, s=0.2, color=color)
+
         ax.set_xlim( 0 - maxx * step , L - 1 + maxy * step)
         ax.set_ylim(-maxy * step, maxy * step)
         ax.set_title('Visualization of Disorder, {}, max a: {}, max b: {}'.format(distype, int(txtx.text) * step, int(txty.text) * step))
@@ -112,12 +120,12 @@ def plotdisorder(para):
 if __name__ == '__main__':
     para = loadpara()
 
-    plotdisorder(para)
-
     if os.path.exists('allipr{}'.format(para['whichEig'])):
         print('plotting {}th eigenstate'.format(para['whichEig']))
-        allplot(para)
+        iprplot(para)
+        plotdisorder(para)
     else:
         print('processing data')
         processipr(para)
 
+    
