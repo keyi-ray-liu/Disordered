@@ -91,8 +91,8 @@ def plotdisorder(para):
         disy = disy.flatten()
         
         ax.scatter(disx, disy, s=0.2)
-        ax.set_xlim( 0 - maxx/100 , L + maxy/100)
-        ax.set_ylim(-maxy/100, maxy/100)
+        ax.set_xlim( 0 - maxx * step , L - 1 + maxy * step)
+        ax.set_ylim(-maxy * step, maxy * step)
 
         fig.canvas.draw_idle()
         
