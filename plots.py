@@ -9,25 +9,30 @@ from math import ceil
 
 
 def loadpara():
-    maxx, maxy, L, numeig , eig, step = np.loadtxt('paras')
+    maxx, maxy, L, numeig , eig, step, distype = np.loadtxt('paras', dtype=str)
     para = {
         'L': int(L),
         'maxx': int(maxx),
         'maxy': int(maxy),
         'numeig': int(numeig),
         'whichEig': int(eig),
-        'step':step
+        'step':float(step),
+        'distype': distype
     }
     return para
 
 def processipr(para):
     maxx, maxy, numeig = para['maxx'], para['maxy'], para['numeig']
+    step = para['step']
+    factor = ceil(np.log10(1/step))
 
     for i in range(numeig):
         iprs = np.zeros((maxx, maxy))
         for x in range( maxx):
+            ix = (x + 1) * step * 10 ** factor
             for y in range(maxy):
-                cdir = os.getcwd() + '/1tun1cou.{}x.{}y*/ipr'.format(str(x + 1).zfill(2), str(y + 1).zfill(2)) 
+                iy = (y + 1) * step * 10 ** factor
+                cdir = os.getcwd() + '/1tun1cou.{}x.{}y*/ipr'.format(str(ix).zfill(factor), str(iy).zfill(factor)) 
                 f = glob.glob(cdir)[0]
                 iprs[x][y] = np.average(np.loadtxt(f), axis=0)[i]
         np.savetxt('allipr{}'.format(i), iprs)
@@ -64,6 +69,7 @@ def allplot(para):
 def plotdisorder(para):
     maxx, maxy, L = para['maxx'], para['maxy'], para['L']
     step = para['step']
+    distype = para['distype']
 
     factor = ceil(np.log10(1/step))
     
@@ -93,6 +99,7 @@ def plotdisorder(para):
         ax.scatter(disx, disy, s=0.2)
         ax.set_xlim( 0 - maxx * step , L - 1 + maxy * step)
         ax.set_ylim(-maxy * step, maxy * step)
+        ax.set_title('Visualization of Disorder, {}, max a: {}, max b: {}'.format(distype, maxx * step, maxy * step))
 
         fig.canvas.draw_idle()
         
