@@ -69,15 +69,15 @@ def plotdisorder(para):
     
     axes = [plt.axes([0.5, 0.2 ,0.3, 0.09]), plt.axes([0.5, 0.3 ,0.3, 0.09])]
 
-    txtx = TextBox(axes[0], 'Max x disorder step (from {} to {}), with step length {}:'.format(1, maxx, step), initial=0.01)
-    txty = TextBox(axes[1], 'Max y disorder step (from {} to {}), with step length {}:'.format(1, maxy, step), initial=0.01)
+    txtx = TextBox(axes[0], 'Max x disorder step (from {} to {}), with step length {}:'.format(1, maxx, step), initial=1)
+    txty = TextBox(axes[1], 'Max y disorder step (from {} to {}), with step length {}:'.format(1, maxy, step), initial=1)
 
     fig, ax = plt.subplots()
 
     def submit(val):
         ax.clear()
-        x = int ( float(txtx.text) * 10 ** factor) 
-        y = int ( float(txty.text) * 10 ** factor)
+        x = int ( float(txtx.text) * step * 10 ** factor) 
+        y = int ( float(txty.text) * step * 10 ** factor)
 
         xdir = os.getcwd() + '/1tun1cou.{}x.{}y*/disx'.format(str(x).zfill(factor), str(y).zfill(factor)) 
         ydir = os.getcwd() + '/1tun1cou.{}x.{}y*/disy'.format(str(x).zfill(factor), str(y).zfill(factor)) 
