@@ -79,7 +79,7 @@ def compPlotDisorder(para):
     ipr = np.loadtxt('stackipr')
 
     fig, ax = plt.subplots()
-    figipr, axipr = plt.subplots()
+    figipr, axipr = plt.subplots(subplot_kw={"projection": "3d"})
     cmap = cm.get_cmap('coolwarm')
     cstep = 1/( maxx - 1)
 
