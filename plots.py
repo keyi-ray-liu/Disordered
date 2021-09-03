@@ -9,7 +9,7 @@ from math import ceil
 
 
 def loadpara():
-    maxx, maxy, L, numeig , eig, step, distype = np.loadtxt('paras', dtype=str)
+    maxx, maxy, L, numeig , eig, step, distype, select, num = np.loadtxt('plotparas', dtype=str)
     para = {
         'L': int(L),
         'maxx': int(maxx),
@@ -17,7 +17,10 @@ def loadpara():
         'numeig': int(numeig),
         'whichEig': int(eig),
         'step':float(step),
-        'distype': distype
+        'distype': distype,
+        'select': int(select),
+        # number of cases
+        'num': int(num)
     }
     return para
 
@@ -67,8 +70,33 @@ def iprplot(para):
     
     plt.show()
 
-def plotdisorder(para):
-    maxx, maxy, L = para['maxx'], para['maxy'], para['L']
+def compPlotDisorder(para):
+    select, num = para['select'], para['num']
+    maxx, maxy = para['maxx'], para['maxy']
+
+    disx = np.loadtxt('stackdisx')
+    disy = np.loadtxt('stackdisy')
+    ipr = np.loadtxt('stackipr')
+
+    fig, ax = plt.subplots()
+    cmap = cm.get_cmap('coolwarm')
+    cstep = 1/ maxx * maxy 
+
+    for case in range(maxx * maxy):
+        xs, ys, iprs = [], [], []
+        for rand in np.random.choice(num, select, replace = False ):
+            index = case * num + rand 
+            xs += disx[index]
+            ys += disy[index]
+            iprs += ipr[index]
+        
+        ax.scatter(xs, ys, color=cmap( case * cstep))
+    
+    plt.show()
+    
+
+def varPlotDisorder(para):
+    maxx, maxy, L, num = para['maxx'], para['maxy'], para['L'], para['num']
     step = para['step']
     distype = para['distype']
 
@@ -95,7 +123,6 @@ def plotdisorder(para):
         disx = np.loadtxt(xf)
         disy = np.loadtxt(yf)
 
-        num = len(disx)
         #define color steps
         cstep = 1/num
 
@@ -120,14 +147,23 @@ def plotdisorder(para):
 
 if __name__ == '__main__':
     para = loadpara()
+    eig = para['whichEig']
 
-    if os.path.exists('allipr{}'.format(para['whichEig'])):
-        print('plotting {}th eigenstate'.format(para['whichEig']))
-        plotdisorder(para)
+    if os.path.exists('stackdisx'):
+        compPlotDisorder(para)
+    else:
+        print('Comparison not efficient. No stacked data files')
+
+    if os.path.exists('allipr{}'.format(eig)):
+
+        varPlotDisorder(para)
+
+        print('Plotting {}th eigenstate'.format(eig))
         iprplot(para)
         
     else:
-        print('processing data')
+        print('Averaging IPR')
         processipr(para)
+
 
     
