@@ -79,6 +79,7 @@ def compPlotDisorder(para):
     ipr = np.loadtxt('stackipr')
 
     fig, ax = plt.subplots()
+    figipr, axipr = plt.subplots()
     cmap = cm.get_cmap('coolwarm')
     cstep = 1/( maxx - 1)
 
@@ -88,9 +89,14 @@ def compPlotDisorder(para):
             color = cmap( ( x - y) * cstep  /2  + 0.5 )
             xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten() + list(range(L)) * select
             ys = disy[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
-            iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
+            iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], 0].flatten()
 
             ax.scatter(xs, ys,  s = 0.3, color=color)
+            
+            axipr.scatter( [x] * select , [y] * select , iprs, color = color)
+    
+    ax.set_title('Visualization of disordered positions of sites, select {} from each case'.format(select))
+    axipr.set_title('Plotting IPR vs. maximum disorder')
     
     plt.show()
     
