@@ -100,7 +100,7 @@ def plotdisorder(para):
 
         for i in range(num):
             # varying colors for each case
-            color = (0.1, 0.1, cstep * i)
+            color = (cstep * i, cstep * i, cstep * i)
             eachdisx = disx[i] + list(range(L))
             eachdisy = disy[i]
         
