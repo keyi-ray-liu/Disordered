@@ -80,16 +80,17 @@ def compPlotDisorder(para):
 
     fig, ax = plt.subplots()
     cmap = cm.get_cmap('coolwarm')
-    cstep = 1/( maxx )
+    cstep = 1/( maxx - 1)
 
     for x in range(maxx ):
         for y in range(maxy):
             start = (x * maxx + y) * num 
+            color = cmap( ( x - y) * cstep  /2  + 0.5 )
             xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten() + list(range(L)) * select
             ys = disy[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
             iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
 
-            ax.scatter(xs, ys,  s = 0.3, color=cmap( (x+1) / ( y + 1) * cstep))
+            ax.scatter(xs, ys,  s = 0.3, color=color)
     
     plt.show()
     
