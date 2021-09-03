@@ -89,7 +89,7 @@ def compPlotDisorder(para):
             ys = disy[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
             iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
 
-            ax.scatter(xs, ys, color=cmap( (x+1) / ( y + 1) * cstep, s = 0.3))
+            ax.scatter(xs, ys,  s = 0.3, color=cmap( (x+1) / ( y + 1) * cstep))
     
     plt.show()
     
