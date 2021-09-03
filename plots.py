@@ -83,13 +83,11 @@ def compPlotDisorder(para):
     cstep = 1/ maxx * maxy 
 
     for case in range(maxx * maxy):
-        xs, ys, iprs = [], [], []
-        for rand in np.random.choice(num, select, replace = False ):
-            index = case * num + rand 
-            xs += disx[index]
-            ys += disy[index]
-            iprs += ipr[index]
-        
+        start = case * num 
+        xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
+        ys = disy[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
+        iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
+
         ax.scatter(xs, ys, color=cmap( case * cstep))
     
     plt.show()
