@@ -72,7 +72,7 @@ def iprplot(para):
 
 def compPlotDisorder(para):
     select, num = para['select'], para['num']
-    maxx, maxy = para['maxx'], para['maxy']
+    maxx, maxy, L = para['maxx'], para['maxy'], para['L']
 
     disx = np.loadtxt('stackdisx')
     disy = np.loadtxt('stackdisy')
@@ -80,11 +80,11 @@ def compPlotDisorder(para):
 
     fig, ax = plt.subplots()
     cmap = cm.get_cmap('coolwarm')
-    cstep = 1/ maxx * maxy 
+    cstep = 1/( maxx * maxy )
 
     for case in range(maxx * maxy):
         start = case * num 
-        xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
+        xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten() + list(range(L)) * select
         ys = disy[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
         iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
 
