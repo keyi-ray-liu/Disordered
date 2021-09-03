@@ -80,6 +80,7 @@ def plotdisorder(para):
     txty = TextBox(axes[1], 'Max y disorder step (from {} to {}), with step length {}:'.format(1, maxy, step), initial=1)
 
     fig, ax = plt.subplots()
+    cmap = cm.get_cmap('coolwarm')
 
     def submit(val):
         ax.clear()
@@ -100,11 +101,11 @@ def plotdisorder(para):
 
         for i in range(num):
             # varying colors for each case
-            color = (cstep * i, cstep * i, cstep * i)
+            color = cmap ( cstep * i)
             eachdisx = disx[i] + list(range(L))
             eachdisy = disy[i]
         
-            ax.scatter(eachdisx, eachdisy, s=0.2, color=color)
+            ax.scatter(eachdisx, eachdisy, s=0.3, color=color)
 
         ax.set_xlim( 0 - maxx * step , L - 1 + maxy * step)
         ax.set_ylim(-maxy * step, maxy * step)
