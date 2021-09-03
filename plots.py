@@ -122,8 +122,9 @@ if __name__ == '__main__':
 
     if os.path.exists('allipr{}'.format(para['whichEig'])):
         print('plotting {}th eigenstate'.format(para['whichEig']))
-        iprplot(para)
         plotdisorder(para)
+        iprplot(para)
+        
     else:
         print('processing data')
         processipr(para)
