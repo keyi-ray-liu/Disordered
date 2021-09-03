@@ -73,6 +73,7 @@ def iprplot(para):
 def compPlotDisorder(para):
     select, num = para['select'], para['num']
     maxx, maxy, L = para['maxx'], para['maxy'], para['L']
+    distype = para['distype']
 
     disx = np.loadtxt('stackdisx')
     disy = np.loadtxt('stackdisy')
@@ -95,8 +96,8 @@ def compPlotDisorder(para):
             
             axipr.scatter( [x] * select , [y] * select , iprs, color = color)
     
-    ax.set_title('Visualization of disordered positions of sites, select {} from each case'.format(select))
-    axipr.set_title('Plotting IPR vs. maximum disorder')
+    ax.set_title('Visualization of disordered positions of sites, {}, select {} from each case'.format(distype, select))
+    axipr.set_title('Plotting IPR vs. maximum disorder, {}'.format(distype))
     
     plt.show()
     
