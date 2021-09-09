@@ -57,7 +57,7 @@ def iprplot(para):
         iprs = np.loadtxt('allipr{}'.format(eig))
         
         
-        ax.plot_surface(X, Y, iprs, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        ax.plot_surface(X, Y, iprs, cmap=cm.Spectral, linewidth=0, antialiased=False)
 
         ax.set_title('Plotting IPR vs. maximum x and y disorder, eigenstate {}, step {}, {}'.format(eig, step, distype ))
         ax.set_xlabel('Maximum x disorder')
@@ -81,7 +81,7 @@ def compPlotDisorder(para):
 
     fig, ax = plt.subplots()
     figipr, axipr = plt.subplots(subplot_kw={"projection": "3d"})
-    cmap = cm.get_cmap('coolwarm')
+    cmap = cm.get_cmap('Spectral')
     cstep = 1/( max(maxx, maxy) - 1)
 
     for x in range(maxx ):
@@ -115,7 +115,7 @@ def varPlotDisorder(para):
     txty = TextBox(axes[1], 'Max y disorder step (from {} to {}), with step length {}:'.format(1, maxy, step), initial=1)
 
     fig, ax = plt.subplots()
-    cmap = cm.get_cmap('coolwarm')
+    cmap = cm.get_cmap('Spectral')
 
     def submit(val):
         ax.clear()
