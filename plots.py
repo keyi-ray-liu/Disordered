@@ -88,7 +88,7 @@ def compPlotDisorder(para):
         for y in range(maxy):
             start = (x * maxx + y) * num 
             color = cmap( ( x - y) * cstep  /2  + 0.5 )
-            xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten() + list(range(L)) * select
+            xs = disx[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten() 
             ys = disy[[start + i for i in np.random.choice(num, select, replace=False)], :].flatten()
             iprs = ipr[[start + i for i in np.random.choice(num, select, replace=False)], 0].flatten()
 
@@ -103,7 +103,8 @@ def compPlotDisorder(para):
     
 
 def varPlotDisorder(para):
-    maxx, maxy, L, num = para['maxx'], para['maxy'], para['L'], para['num']
+    maxx, maxy, num = para['maxx'], para['maxy'], para['num']
+    row, col = para['row'], para['col']
     step = para['step']
     distype = para['distype']
 
@@ -136,13 +137,13 @@ def varPlotDisorder(para):
         for i in range(num):
             # varying colors for each case
             color = cmap ( cstep * i)
-            eachdisx = disx[i] + list(range(L))
+            eachdisx = disx[i] 
             eachdisy = disy[i]
         
             ax.scatter(eachdisx, eachdisy, s=0.3, color=color)
 
-        ax.set_xlim( 0 - maxx * step , L - 1 + maxy * step)
-        ax.set_ylim(-maxy * step, maxy * step)
+        ax.set_xlim( 0 - maxx * step , row - 1 + maxx * step)
+        ax.set_ylim(0 - maxy * step , col - 1 + maxy * step)
         ax.set_title('Visualization of Disorder, {}, max a: {}, max b: {}'.format(distype, int(txtx.text) * step, int(txty.text) * step))
 
         fig.canvas.draw_idle()
