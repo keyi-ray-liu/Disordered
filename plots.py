@@ -82,7 +82,7 @@ def compPlotDisorder(para):
     fig, ax = plt.subplots()
     figipr, axipr = plt.subplots(subplot_kw={"projection": "3d"})
     cmap = cm.get_cmap('coolwarm')
-    cstep = 1/( maxx - 1)
+    cstep = 1/( max(maxx, maxy) - 1)
 
     for x in range(maxx ):
         for y in range(maxy):
