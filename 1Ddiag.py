@@ -14,8 +14,17 @@ import matplotlib.pyplot as plt
 
 # intialize the parameters for the simulation
 def initParameters():
-    L, N, batch, lo, hi = np.loadtxt('inp')
-    tun, cou, a, b,  readdisorder, seed, decay, distype = np.loadtxt('para_dis', dtype='str')
+    L, N, batch, lo, hi, mode = np.loadtxt('inp')
+    mode = int(mode)
+    num_site = 0
+    # mode 0 is the universal x, y disorder generation, used in testing a new t, lambda combination
+    # mode 1 is select site generation, only on x direction, and the rest of the site have minimal disorder. 
+    if mode == 0:
+        tun, cou, a, b,  readdisorder, seed, decay, distype = np.loadtxt('para_dis', dtype='str')
+    elif mode == 1:
+        # the a, b now refers to the lower and upper limit of the site disorder, a sign is assigned randomly.
+        tun, cou, a, b,  readdisorder, seed, decay, distype, num_site = np.loadtxt('para_dis', dtype='str')
+
     t, int_ee, int_ne, z, zeta, ex, selfnuc = np.loadtxt('hamiltonian')
     para = {
     'L' : int(L),
@@ -37,7 +46,9 @@ def initParameters():
     'decay': float(decay),
     'batch': int(batch),
     'distype': distype,
-    'Nth eig': [int(lo), int(hi)]}
+    'Nth eig': [int(lo), int(hi)],
+    'mode': mode,
+    'num_site': int(num_site)}
     
     print('Simulation parameters: {}'.format(para))
     return para
@@ -54,6 +65,8 @@ def generateState(L, N):
 
 def generateDisorder(para):
     L, batch, readdisorder, distype, seed , a, b = para['L'],   para['batch'], para['readdisorder'], para['distype'], para['seed'], para['a'], para['b']
+    mode = para['mode']
+    num_site = para['num_site']
 
     if readdisorder:
         disx, disy = np.loadtxt('val_dis')
@@ -61,15 +74,33 @@ def generateDisorder(para):
 
     else:
         rng = np.random.default_rng(seed=seed)
+        
+        if mode == 0:
+            if distype == 'uniform':
+                return a * rng.uniform(-1, 1, (batch, L)), b * rng.uniform(-1, 1, (batch, L))
 
-        if distype == 'uniform':
+            elif distype =='gaussian':
+                return rng.normal(0, a, (batch, L)), rng.normal(0, b, (batch, L))
 
-            return a * rng.uniform(-1, 1, (batch, L)), b * rng.uniform(-1, 1, (batch, L))
+        elif mode == 1:
 
-        elif distype =='gaussian':
+            #generate the site positions
+            sites = np.array([ rng.choice(L, num_site, replace=False) for _ in range(batch)])
 
-            return rng.normal(0, a, (batch, L)), rng.normal(0, b, (batch, L))
+            disx = np.zeros((batch, L))
+            disy = np.zeros((batch, L))
 
+            sign = np.array([[ -1 if np.random.random() < 0.5 else 1 for _ in range(num_site)] for _ in range(batch) ])
+
+            newdisx =  rng.uniform(a, b, (batch, num_site))  * sign
+
+            for b in range(batch):
+                for site in range(num_site):
+                    print(sites[b][site])
+                    disx[b][ sites[b][site] ] = newdisx [b][ site] 
+
+            np.savetxt('sites', sites, fmt='%i')
+            return disx, disy
 
 
 def init(para):
@@ -217,9 +248,12 @@ if __name__ == '__main__':
 
     # generate dictionary for book keeping
     sdict = initdict(S)
+
+
     disx, disy = generateDisorder(para) 
 
-    if readdisorder :
+
+    if readdisorder:
         batch = 1
         disx, disy = [disx], [disy]
 
